@@ -1,18 +1,12 @@
 export default class Particle {
-    constructor(initialX, initialY) {
-        this.speed = this.getRandomNumber(10, 20)
+    constructor(coordinates, canvas) {
+        this.speed = this.getRandomNumber(2, 3)
+        this.radius = this.getRandomNumber(20, 70)
 
-        this.el = document.createElement('div')
-        this.el.style.position = 'absolute'
-        this.el.style.transition = 'all 0.1s ease 0s'
-        this.el.style['border-radius'] = '50%'
-
-        document.body.appendChild(this.el)
-
-        this.setPosition(initialX, initialY)
-        this.setRandomSize()
         this.setRandomColor()
-        this.startBrownianMotion()
+
+        this.correctionCoordinates(coordinates, canvas)
+        this.setPosition(coordinates.initialX, coordinates.initialY)
     }
 
     getRandomNumber(from, to) {
@@ -20,53 +14,27 @@ export default class Particle {
         return parseInt((rnd * (to - from)) + from)
     }
 
+    setPosition(x, y) {
+        this.x = x
+        this.y = y
+    }
+
     setRandomColor() {
         const rnd = Math.random()
         const hex = 0x1000000 + rnd * 0xffffff
         const color = hex.toString(16).substr(1, 6)
-        this.el.style.background = ['#', color].join('')
+        this.color = ['#', color].join('')
     }
 
-    getPixels(property) {
-        const value = this.el.style[property]
-        return parseInt(value)
-    }
+    correctionCoordinates(coordinates, canvas) {
+        if (coordinates.initialX < this.radius)
+            coordinates.initialX = this.radius
+        if (coordinates.initialX + this.radius > canvas.width)
+            coordinates.initialX = canvas.width - this.radius
 
-    setPixels(property, value) {
-        this.el.style[property] = [value, 'px'].join('')
-    }
-
-    setRandomSize() {
-        const side = this.getRandomNumber(20, 70)
-        this.setPixels('width', side)
-        this.setPixels('height', side)
-    }
-
-    getPositionX() {
-        return this.getPixels('left')
-    }
-
-    getPositionY() {
-        return this.getPixels('top')
-    }
-
-    setPosition(x, y) {
-        this.setPixels('left', x)
-        this.setPixels('top', y)
-    }
-
-    moveRandomly() {
-        const to = parseInt(this.speed / 2)
-        const from = to * -1
-        const prevX = this.getPositionX()
-        const prevY = this.getPositionY()
-        const nextX = prevX + this.getRandomNumber(from, to)
-        const nextY = prevY + this.getRandomNumber(from, to)
-        this.setPosition(nextX, nextY)
-    }
-
-    startBrownianMotion() {
-        const timeout = 100
-        const interval = setInterval(this.moveRandomly.bind(this), timeout)
+        if (coordinates.initialY < this.radius)
+            coordinates.initialY = this.radius
+        if (coordinates.initialY + this.radius > canvas.height)
+            coordinates.initialY = canvas.height - this.radius
     }
 }
